@@ -1,0 +1,352 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="dbWarehouseModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="__MigrationHistory">
+          <Key>
+            <PropertyRef Name="MigrationId" />
+            <PropertyRef Name="ContextKey" />
+          </Key>
+          <Property Name="MigrationId" Type="nvarchar" MaxLength="150" Nullable="false" />
+          <Property Name="ContextKey" Type="nvarchar" MaxLength="300" Nullable="false" />
+          <Property Name="Model" Type="varbinary(max)" Nullable="false" />
+          <Property Name="ProductVersion" Type="nvarchar" MaxLength="32" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Cables">
+          <Key>
+            <PropertyRef Name="CableId" />
+          </Key>
+          <Property Name="CableId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CableName" Type="nvarchar(max)" />
+          <Property Name="CablePN" Type="nvarchar(max)" />
+          <Property Name="OrderedQty" Type="int" />
+          <Property Name="MinStock" Type="int" Nullable="false" />
+          <Property Name="Price" Type="decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="Image" Type="image" />
+          <Property Name="Desc" Type="nvarchar(max)" />
+          <Property Name="Stock" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Departments">
+          <Key>
+            <PropertyRef Name="DepartmentId" />
+          </Key>
+          <Property Name="DepartmentId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="DeptName" Type="nvarchar(max)" />
+        </EntityType>
+        <EntityType Name="Logs">
+          <Key>
+            <PropertyRef Name="LogId" />
+          </Key>
+          <Property Name="LogId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Date" Type="datetime" Nullable="false" />
+          <Property Name="CableId" Type="int" Nullable="false" />
+          <Property Name="PersonId" Type="int" Nullable="false" />
+          <Property Name="Quantity" Type="int" Nullable="false" />
+          <Property Name="Delivery" Type="bit" Nullable="false" />
+          <Property Name="Department_DepartmentId" Type="int" />
+        </EntityType>
+        <EntityType Name="People">
+          <Key>
+            <PropertyRef Name="PersonId" />
+          </Key>
+          <Property Name="PersonId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="Name" Type="nvarchar(max)" />
+          <Property Name="DepartmentId" Type="int" Nullable="false" />
+        </EntityType>
+        <Association Name="FK_dbo_Logs_dbo_Cables_CableId">
+          <End Role="Cables" Type="Self.Cables" Multiplicity="1" />
+          <End Role="Logs" Type="Self.Logs" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Cables">
+              <PropertyRef Name="CableId" />
+            </Principal>
+            <Dependent Role="Logs">
+              <PropertyRef Name="CableId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_dbo_Logs_dbo_Departments_Department_DepartmentId">
+          <End Role="Departments" Type="Self.Departments" Multiplicity="0..1" />
+          <End Role="Logs" Type="Self.Logs" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Departments">
+              <PropertyRef Name="DepartmentId" />
+            </Principal>
+            <Dependent Role="Logs">
+              <PropertyRef Name="Department_DepartmentId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_dbo_Logs_dbo_People_PersonId">
+          <End Role="People" Type="Self.People" Multiplicity="1" />
+          <End Role="Logs" Type="Self.Logs" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="People">
+              <PropertyRef Name="PersonId" />
+            </Principal>
+            <Dependent Role="Logs">
+              <PropertyRef Name="PersonId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_dbo_People_dbo_Departments_DepartmentId">
+          <End Role="Departments" Type="Self.Departments" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="People" Type="Self.People" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Departments">
+              <PropertyRef Name="DepartmentId" />
+            </Principal>
+            <Dependent Role="People">
+              <PropertyRef Name="DepartmentId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="dbWarehouseModelStoreContainer">
+          <EntitySet Name="__MigrationHistory" EntityType="Self.__MigrationHistory" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Cables" EntityType="Self.Cables" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Departments" EntityType="Self.Departments" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Logs" EntityType="Self.Logs" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="People" EntityType="Self.People" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_dbo_Logs_dbo_Cables_CableId" Association="Self.FK_dbo_Logs_dbo_Cables_CableId">
+            <End Role="Cables" EntitySet="Cables" />
+            <End Role="Logs" EntitySet="Logs" />
+          </AssociationSet>
+          <AssociationSet Name="FK_dbo_Logs_dbo_Departments_Department_DepartmentId" Association="Self.FK_dbo_Logs_dbo_Departments_Department_DepartmentId">
+            <End Role="Departments" EntitySet="Departments" />
+            <End Role="Logs" EntitySet="Logs" />
+          </AssociationSet>
+          <AssociationSet Name="FK_dbo_Logs_dbo_People_PersonId" Association="Self.FK_dbo_Logs_dbo_People_PersonId">
+            <End Role="People" EntitySet="People" />
+            <End Role="Logs" EntitySet="Logs" />
+          </AssociationSet>
+          <AssociationSet Name="FK_dbo_People_dbo_Departments_DepartmentId" Association="Self.FK_dbo_People_dbo_Departments_DepartmentId">
+            <End Role="Departments" EntitySet="Departments" />
+            <End Role="People" EntitySet="People" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="dbWarehouseModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="C__MigrationHistory">
+          <Key>
+            <PropertyRef Name="MigrationId" />
+            <PropertyRef Name="ContextKey" />
+          </Key>
+          <Property Name="MigrationId" Type="String" MaxLength="150" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="ContextKey" Type="String" MaxLength="300" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Model" Type="Binary" MaxLength="Max" FixedLength="false" Nullable="false" />
+          <Property Name="ProductVersion" Type="String" MaxLength="32" FixedLength="false" Unicode="true" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Cable">
+          <Key>
+            <PropertyRef Name="CableId" />
+          </Key>
+          <Property Name="CableId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CableName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="CablePN" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="OrderedQty" Type="Int32" />
+          <Property Name="MinStock" Type="Int32" Nullable="false" />
+          <Property Name="Price" Type="Decimal" Precision="18" Scale="2" Nullable="false" />
+          <Property Name="Image" Type="Binary" MaxLength="Max" FixedLength="false" />
+          <Property Name="Desc" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="Stock" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Logs" Relationship="Self.FK_dbo_Logs_dbo_Cables_CableId" FromRole="Cables" ToRole="Logs" />
+        </EntityType>
+        <EntityType Name="Department">
+          <Key>
+            <PropertyRef Name="DepartmentId" />
+          </Key>
+          <Property Name="DepartmentId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="DeptName" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Logs" Relationship="Self.FK_dbo_Logs_dbo_Departments_Department_DepartmentId" FromRole="Departments" ToRole="Logs" />
+          <NavigationProperty Name="People" Relationship="Self.FK_dbo_People_dbo_Departments_DepartmentId" FromRole="Departments" ToRole="People" />
+        </EntityType>
+        <EntityType Name="Log">
+          <Key>
+            <PropertyRef Name="LogId" />
+          </Key>
+          <Property Name="LogId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Date" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="CableId" Type="Int32" Nullable="false" />
+          <Property Name="PersonId" Type="Int32" Nullable="false" />
+          <Property Name="Quantity" Type="Int32" Nullable="false" />
+          <Property Name="Delivery" Type="Boolean" Nullable="false" />
+          <Property Name="Department_DepartmentId" Type="Int32" />
+          <NavigationProperty Name="Cable" Relationship="Self.FK_dbo_Logs_dbo_Cables_CableId" FromRole="Logs" ToRole="Cables" />
+          <NavigationProperty Name="Department" Relationship="Self.FK_dbo_Logs_dbo_Departments_Department_DepartmentId" FromRole="Logs" ToRole="Departments" />
+          <NavigationProperty Name="Person" Relationship="Self.FK_dbo_Logs_dbo_People_PersonId" FromRole="Logs" ToRole="People" />
+        </EntityType>
+        <EntityType Name="Person">
+          <Key>
+            <PropertyRef Name="PersonId" />
+          </Key>
+          <Property Name="PersonId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Name" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="DepartmentId" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Department" Relationship="Self.FK_dbo_People_dbo_Departments_DepartmentId" FromRole="People" ToRole="Departments" />
+          <NavigationProperty Name="Logs" Relationship="Self.FK_dbo_Logs_dbo_People_PersonId" FromRole="People" ToRole="Logs" />
+        </EntityType>
+        <Association Name="FK_dbo_Logs_dbo_Cables_CableId">
+          <End Role="Cables" Type="Self.Cable" Multiplicity="1" />
+          <End Role="Logs" Type="Self.Log" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Cables">
+              <PropertyRef Name="CableId" />
+            </Principal>
+            <Dependent Role="Logs">
+              <PropertyRef Name="CableId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_dbo_Logs_dbo_Departments_Department_DepartmentId">
+          <End Role="Departments" Type="Self.Department" Multiplicity="0..1" />
+          <End Role="Logs" Type="Self.Log" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Departments">
+              <PropertyRef Name="DepartmentId" />
+            </Principal>
+            <Dependent Role="Logs">
+              <PropertyRef Name="Department_DepartmentId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_dbo_People_dbo_Departments_DepartmentId">
+          <End Role="Departments" Type="Self.Department" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="People" Type="Self.Person" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Departments">
+              <PropertyRef Name="DepartmentId" />
+            </Principal>
+            <Dependent Role="People">
+              <PropertyRef Name="DepartmentId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_dbo_Logs_dbo_People_PersonId">
+          <End Role="People" Type="Self.Person" Multiplicity="1" />
+          <End Role="Logs" Type="Self.Log" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="People">
+              <PropertyRef Name="PersonId" />
+            </Principal>
+            <Dependent Role="Logs">
+              <PropertyRef Name="PersonId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="dbWarehouseEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="C__MigrationHistory" EntityType="Self.C__MigrationHistory" />
+          <EntitySet Name="Cables" EntityType="Self.Cable" />
+          <EntitySet Name="Departments" EntityType="Self.Department" />
+          <EntitySet Name="Logs" EntityType="Self.Log" />
+          <EntitySet Name="People" EntityType="Self.Person" />
+          <AssociationSet Name="FK_dbo_Logs_dbo_Cables_CableId" Association="Self.FK_dbo_Logs_dbo_Cables_CableId">
+            <End Role="Cables" EntitySet="Cables" />
+            <End Role="Logs" EntitySet="Logs" />
+          </AssociationSet>
+          <AssociationSet Name="FK_dbo_Logs_dbo_Departments_Department_DepartmentId" Association="Self.FK_dbo_Logs_dbo_Departments_Department_DepartmentId">
+            <End Role="Departments" EntitySet="Departments" />
+            <End Role="Logs" EntitySet="Logs" />
+          </AssociationSet>
+          <AssociationSet Name="FK_dbo_People_dbo_Departments_DepartmentId" Association="Self.FK_dbo_People_dbo_Departments_DepartmentId">
+            <End Role="Departments" EntitySet="Departments" />
+            <End Role="People" EntitySet="People" />
+          </AssociationSet>
+          <AssociationSet Name="FK_dbo_Logs_dbo_People_PersonId" Association="Self.FK_dbo_Logs_dbo_People_PersonId">
+            <End Role="People" EntitySet="People" />
+            <End Role="Logs" EntitySet="Logs" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="dbWarehouseModelStoreContainer" CdmEntityContainer="dbWarehouseEntities">
+          <EntitySetMapping Name="C__MigrationHistory">
+            <EntityTypeMapping TypeName="dbWarehouseModel.C__MigrationHistory">
+              <MappingFragment StoreEntitySet="__MigrationHistory">
+                <ScalarProperty Name="MigrationId" ColumnName="MigrationId" />
+                <ScalarProperty Name="ContextKey" ColumnName="ContextKey" />
+                <ScalarProperty Name="Model" ColumnName="Model" />
+                <ScalarProperty Name="ProductVersion" ColumnName="ProductVersion" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Cables">
+            <EntityTypeMapping TypeName="dbWarehouseModel.Cable">
+              <MappingFragment StoreEntitySet="Cables">
+                <ScalarProperty Name="CableId" ColumnName="CableId" />
+                <ScalarProperty Name="CableName" ColumnName="CableName" />
+                <ScalarProperty Name="CablePN" ColumnName="CablePN" />
+                <ScalarProperty Name="OrderedQty" ColumnName="OrderedQty" />
+                <ScalarProperty Name="MinStock" ColumnName="MinStock" />
+                <ScalarProperty Name="Price" ColumnName="Price" />
+                <ScalarProperty Name="Image" ColumnName="Image" />
+                <ScalarProperty Name="Desc" ColumnName="Desc" />
+                <ScalarProperty Name="Stock" ColumnName="Stock" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Departments">
+            <EntityTypeMapping TypeName="dbWarehouseModel.Department">
+              <MappingFragment StoreEntitySet="Departments">
+                <ScalarProperty Name="DepartmentId" ColumnName="DepartmentId" />
+                <ScalarProperty Name="DeptName" ColumnName="DeptName" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Logs">
+            <EntityTypeMapping TypeName="dbWarehouseModel.Log">
+              <MappingFragment StoreEntitySet="Logs">
+                <ScalarProperty Name="LogId" ColumnName="LogId" />
+                <ScalarProperty Name="Date" ColumnName="Date" />
+                <ScalarProperty Name="CableId" ColumnName="CableId" />
+                <ScalarProperty Name="PersonId" ColumnName="PersonId" />
+                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
+                <ScalarProperty Name="Delivery" ColumnName="Delivery" />
+                <ScalarProperty Name="Department_DepartmentId" ColumnName="Department_DepartmentId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="People">
+            <EntityTypeMapping TypeName="dbWarehouseModel.Person">
+              <MappingFragment StoreEntitySet="People">
+                <ScalarProperty Name="PersonId" ColumnName="PersonId" />
+                <ScalarProperty Name="Name" ColumnName="Name" />
+                <ScalarProperty Name="DepartmentId" ColumnName="DepartmentId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

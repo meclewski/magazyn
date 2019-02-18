@@ -1,0 +1,199 @@
+﻿<Window x:Class="Magazyn.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Magazyn"
+        mc:Ignorable="d"
+        Title="Aplikacja magazynowa TE" Height="633.548" Width="1060.283" Loaded="Window_Loaded">
+    <Window.Resources>
+        <CollectionViewSource x:Key="cableViewSource" d:DesignSource="{d:DesignInstance {x:Type local:Cable}, CreateList=True}"/>
+        <CollectionViewSource x:Key="personViewSource" d:DesignSource="{d:DesignInstance {x:Type local:Person}, CreateList=True}"/>
+
+    </Window.Resources>
+    <TabControl Margin="0,0,2,-20">
+        <TabItem Header="Pobieranie z Magazynu">
+            <Grid DataContext="{StaticResource cableViewSource}">
+                <DataGrid Name="cablesDG" IsReadOnly="True" AutoGenerateColumns="False" Margin="10,90,0,44" SelectionChanged="CablesDG_SelectionChanged" HorizontalAlignment="Left" Width="644"  >
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Binding="{Binding CableId}" Header="ID" Width="*"/>
+                        <DataGridTextColumn Binding="{Binding CableName}" Header="Nazwa" Width="12*"/>
+                        <DataGridTextColumn Binding="{Binding CablePN}" Header="PN" Width="3*" />
+                        <DataGridTextColumn Binding="{Binding Stock}" Header="Stan" Width="3*" />
+                        <DataGridTextColumn Binding="{Binding MinStock}" Header="Stan minimalny" Width="3*" />
+                        <DataGridTextColumn Binding="{Binding OrderedQty}" Header="Zamówione" Width="3*" />
+                    </DataGrid.Columns>
+                </DataGrid>
+                <TextBox Name="txtQuantity" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" Margin="162,53,0,0"/>
+                <Image x:Name="CableImageDisplay" Margin="690,90,45,118" Source="{Binding Image}"/>
+                <Button Content="Pobierz" HorizontalAlignment="Left" Height="48" Margin="534,28,0,0" VerticalAlignment="Top" Width="120" Click="Button_Click_GetCable"/>
+                <Label x:Name="label" Content="Kabel" HorizontalAlignment="Left" Margin="10,28,0,0" VerticalAlignment="Top"/>
+                <Label x:Name="label1" Content="Ilość" HorizontalAlignment="Left" Margin="162,28,0,0" VerticalAlignment="Top"/>
+                <Label x:Name="label2" Content="Pobierający" HorizontalAlignment="Left" Margin="317,28,0,0" VerticalAlignment="Top"/>
+                <ComboBox Name="CableSelectCB" HorizontalAlignment="Left" Margin="10,54,0,0" VerticalAlignment="Top" Width="120"  SelectionChanged="ComboBox_SelectionChanged"  
+                      IsEditable="False"
+                      ItemsSource="{Binding Cables}"
+                      DisplayMemberPath="CableName"
+                      SelectedValuePath="CableId"  />
+                <ComboBox Name="PersonSelectCB" HorizontalAlignment="Left" Margin="317,53,0,0" VerticalAlignment="Top" Width="120"   
+                      IsEditable="False"
+                      ItemsSource="{Binding People}"
+                      DisplayMemberPath="Name"
+                      SelectedValuePath="PersonId"   />
+            </Grid>
+        </TabItem>
+        <TabItem Header="Dostawy">
+            <Grid Background="#FFE5E5E5">
+                <Image x:Name="CableImageDel" Margin="690,90,45,118" Source="{Binding Image}"/>
+                <DataGrid Name="cablesDelDG" IsReadOnly="True" AutoGenerateColumns="False" Margin="10,90,0,44" SelectionChanged="CablesDelDG_SelectionChanged" HorizontalAlignment="Left" Width="644"  >
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Binding="{Binding CableId}" Header="ID" Width="*"/>
+                        <DataGridTextColumn Binding="{Binding CableName}" Header="Nazwa" Width="12*"/>
+                        <DataGridTextColumn Binding="{Binding CablePN}" Header="PN" Width="3*" />
+                        <DataGridTextColumn Binding="{Binding Stock}" Header="Stan" Width="3*" />
+                        <DataGridTextColumn Binding="{Binding MinStock}" Header="Stan minimalny" Width="3*" />
+                        <DataGridTextColumn Binding="{Binding OrderedQty}" Header="Zamówione" Width="3*" />
+                    </DataGrid.Columns>
+                </DataGrid>
+                <TextBox Name="txtQuantityDel" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" Margin="162,53,0,0"/>
+                <Button Content="Dodaj" HorizontalAlignment="Left" Height="48" Margin="534,28,0,0" VerticalAlignment="Top" Width="120" Click="Button_Click_Delivery"/>
+                <Label x:Name="label3" Content="Kabel" HorizontalAlignment="Left" Margin="10,28,0,0" VerticalAlignment="Top"/>
+                <Label x:Name="label4" Content="Ilość" HorizontalAlignment="Left" Margin="162,28,0,0" VerticalAlignment="Top"/>
+                <Label x:Name="label5" Content="Przyjmujący" HorizontalAlignment="Left" Margin="317,28,0,0" VerticalAlignment="Top"/>
+                <ComboBox Name="CableSelectDelCB" HorizontalAlignment="Left" Margin="10,54,0,0" VerticalAlignment="Top" Width="120"  SelectionChanged="CableSelectDelCB_SelectionChanged"  
+                      IsEditable="False"
+                      ItemsSource="{Binding Cables}"
+                      DisplayMemberPath="CableName"
+                      SelectedValuePath="CableId"  />
+                <ComboBox Name="PersonSelectDelCB" HorizontalAlignment="Left" Margin="317,53,0,0" VerticalAlignment="Top" Width="120"   
+                      IsEditable="False"
+                      ItemsSource="{Binding People}"
+                      DisplayMemberPath="Name"
+                      SelectedValuePath="PersonId"   />
+            </Grid>
+        </TabItem>
+        <TabItem Header="Dodawanie nowych materiałow">
+            <Grid Background="#FFE5E5E5">
+                <Image x:Name="CableImageNew" HorizontalAlignment="Left" Height="287" Margin="603,126,0,0" VerticalAlignment="Top" Width="360" Source="{Binding Image}" OpacityMask="#FFE6D1D1"/>
+                <Button Content="Wybierz zdjęcie" HorizontalAlignment="Left" Margin="603,418,0,0" VerticalAlignment="Top" Width="110" Height="21" Click="Button_Click_OpenImage"/>
+                <Button Content="Zapisz" HorizontalAlignment="Left" Height="36" Margin="875,512,0,0" VerticalAlignment="Top" Width="120" Click="Button_Click_SaveItem"/>
+                <Label Content="Dane nowego materiału" HorizontalAlignment="Left" Margin="44,10,0,0" VerticalAlignment="Top" Height="39" Width="557"  FontSize="18" FontWeight="Bold"/>
+                <GroupBox  HorizontalAlignment="Left" Height="422" Margin="44,126,0,0" VerticalAlignment="Top" Width="490">
+                    <Grid DataContext="{StaticResource cableViewSource}">
+                        <Grid x:Name="CableId"  HorizontalAlignment="Left" Margin="61,10,0,0" VerticalAlignment="Top" Width="364">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Label Content="Id:" Grid.Column="0" HorizontalAlignment="Left" Margin="3" Grid.Row="0" VerticalAlignment="Center"/>
+                            <ComboBox Name="CableSelectEditCB" HorizontalAlignment="Left" Margin="89,3,-315,0" VerticalAlignment="Top" Width="235"    
+                      IsEditable="False"
+                      ItemsSource="{Binding Cables}"
+                      DisplayMemberPath="CableName"
+                      SelectedValuePath="CableId" Grid.Column="1" SelectionChanged="CableSelectEditCB_SelectionChanged"  />
+                        </Grid>
+                        <Grid x:Name="CableName" HorizontalAlignment="Left" Margin="61,47,0,0" VerticalAlignment="Top" Width="364">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Label Content="Nazwa:" Grid.Column="0" HorizontalAlignment="Left" Margin="3" Grid.Row="0" VerticalAlignment="Center"/>
+                            <TextBox x:Name="cableNameTextBox" Grid.Column="1" HorizontalAlignment="Left" Height="22" Margin="63,5,-167,5" Grid.Row="0" 
+                                     Text="{Binding CableName, Mode=TwoWay, NotifyOnValidationError=true, ValidatesOnExceptions=true}" 
+                                     VerticalAlignment="Center" Width="236" />
+                        </Grid>
+                        <Grid x:Name="CablePn" HorizontalAlignment="Left" Margin="61,84,0,0" VerticalAlignment="Top" Width="364">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Label Content="PN:" Grid.Column="0" HorizontalAlignment="Left" Margin="3" Grid.Row="0" VerticalAlignment="Center"/>
+                            <TextBox x:Name="cablePNTextBox" Grid.Column="1" HorizontalAlignment="Left" Height="24" Margin="83,5,-186,3" Grid.Row="0" 
+                                     Text="{Binding CablePN, Mode=TwoWay, NotifyOnValidationError=true, ValidatesOnExceptions=true}" 
+                                     VerticalAlignment="Center" Width="236"/>
+                        </Grid>
+                        <Grid x:Name="CableStock"  HorizontalAlignment="Left" Margin="61,121,0,0" VerticalAlignment="Top" Width="364">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Label Content="Stan:" Grid.Column="0" HorizontalAlignment="Left" Margin="3" Grid.Row="0" VerticalAlignment="Center"/>
+                            <TextBox x:Name="stockTextBox" Grid.Column="1" HorizontalAlignment="Left" Height="24" Margin="75,4,-176,4" Grid.Row="0" 
+                                     Text="{Binding Stock, Mode=TwoWay, NotifyOnValidationError=true, ValidatesOnExceptions=true}" 
+                                     VerticalAlignment="Center" Width="236" PreviewTextInput="StockTextBox_PreviewTextInput"/>
+                        </Grid>
+                        <Grid x:Name="CableMin"  HorizontalAlignment="Left" Margin="61,158,0,0" VerticalAlignment="Top" Width="364" PreviewTextInput="CableMin_PreviewTextInput">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Label Content="Stan Min:" Grid.Column="0" HorizontalAlignment="Left" Margin="3" Grid.Row="0" VerticalAlignment="Center"/>
+                            <TextBox x:Name="minStockTextBox" Grid.Column="1" HorizontalAlignment="Left" Height="23" Margin="50,5,-150,4" Grid.Row="0" 
+                                     Text="{Binding MinStock, Mode=TwoWay, NotifyOnValidationError=true, ValidatesOnExceptions=true}" 
+                                     VerticalAlignment="Center" Width="237" SpellCheck.IsEnabled="True"/>
+                        </Grid>
+                        <Grid x:Name="CableOrdered"  HorizontalAlignment="Left" Margin="61,195,0,0" VerticalAlignment="Top" Width="364" PreviewTextInput="CableOrdered_PreviewTextInput">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Label Content="Ilość zamówiona:" Grid.Column="0" HorizontalAlignment="Left" Margin="3" Grid.Row="0" VerticalAlignment="Center"/>
+                            <TextBox x:Name="orderedQtyTextBox" Grid.Column="1" HorizontalAlignment="Left" Height="24" Margin="10,8,-115,0" Grid.Row="0" 
+                                     Text="{Binding OrderedQty, Mode=TwoWay, NotifyOnValidationError=true, ValidatesOnExceptions=true, ValidatesOnDataErrors=True}" 
+                                     VerticalAlignment="Center" Width="237"/>
+                        </Grid>
+                        <Grid x:Name="CablePrice"  HorizontalAlignment="Left" Margin="61,232,0,0" VerticalAlignment="Top" Width="364" PreviewTextInput="CablePrice_PreviewTextInput">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Label Content="Cena:" Grid.Column="0" HorizontalAlignment="Left" Margin="3" Grid.Row="0" VerticalAlignment="Center"/>
+                            <TextBox x:Name="priceTextBox" Grid.Column="1" HorizontalAlignment="Left" Height="24" Margin="71,5,-174,3" Grid.Row="0" 
+                                     Text="{Binding Price, Mode=TwoWay, NotifyOnValidationError=true, ValidatesOnExceptions=true}" 
+                                     VerticalAlignment="Center" Width="237"/>
+                        </Grid>
+                        <Grid x:Name="CableDesc" HorizontalAlignment="Left" Margin="61,269,0,0" VerticalAlignment="Top" Width="364">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Label Content="Opis:" Grid.Column="0" HorizontalAlignment="Left" Margin="3" Grid.Row="0" VerticalAlignment="Center"/>
+                            <TextBox x:Name="descTextBox" Grid.Column="1" HorizontalAlignment="Left" Height="22" Margin="73,6,-173,4" Grid.Row="0" 
+                                     Text="{Binding Desc, Mode=TwoWay, NotifyOnValidationError=true, ValidatesOnExceptions=true}" 
+                                     VerticalAlignment="Center" Width="237"/>
+                        </Grid>
+                        <Button Content="Resetuj"  Width="75" Margin="61,331,342,59" Click="ButtonClear_Click"/>
+                    </Grid>
+                </GroupBox>
+                <Label Content="Pozostaw pole Id puste jeśli chcesz dodać nowy materiał, &#xD;&#xA;lub wybierz wartość jeśli chcesz edytować istniejący" HorizontalAlignment="Left" Margin="44,54,0,0" VerticalAlignment="Top" Height="49" Width="557" FontWeight="Bold" Foreground="#FFF11212"/>
+                
+            </Grid>
+        </TabItem>
+    </TabControl>
+
+
+</Window>
