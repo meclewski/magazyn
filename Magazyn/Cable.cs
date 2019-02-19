@@ -28,6 +28,7 @@ namespace Magazyn
         public string CablePN { get; set; }
         [Range(0, int.MaxValue, ErrorMessage ="Wartoœæ zamówionej iloœci musi byæ liczb¹ nieujemn¹")]
         public Nullable<int> OrderedQty { get; set; }
+        [Required]
         [Range(0, int.MaxValue)]
         public int MinStock { get; set; }
         //[RegularExpression(@"^\$?\d+(\.(\d{2}))?$")]

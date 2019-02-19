@@ -20,6 +20,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+
 namespace Magazyn
 {
     /// <summary>
@@ -40,32 +41,38 @@ namespace Magazyn
 
             ReloadData();
             
-            
-
-            System.Windows.Data.CollectionViewSource cableViewSource = ((System.Windows.Data.CollectionViewSource)(this.FindResource("cableViewSource")));
+            CollectionViewSource cableViewSource = (CollectionViewSource)FindResource("cableViewSource");
             // Załaduj dane poprzez ustawienie właściwości CollectionViewSource.Source:
             // cableViewSource.Źródło = [ogólne źródło danych]
 
-            System.Windows.Data.CollectionViewSource personViewSource = ((System.Windows.Data.CollectionViewSource)(this.FindResource("personViewSource")));
+            CollectionViewSource personViewSource = (CollectionViewSource)FindResource("personViewSource");
+            // Załaduj dane poprzez ustawienie właściwości CollectionViewSource.Source:
+            // personViewSource.Źródło = [ogólne źródło danych]
+
+            CollectionViewSource logViewSource = (CollectionViewSource)FindResource("logViewSource");
             // Załaduj dane poprzez ustawienie właściwości CollectionViewSource.Source:
             // personViewSource.Źródło = [ogólne źródło danych]
         }
 
-        
+
 
         //zapisywanie zmian w oknie pobrania z magazynu
         private async void Button_Click_GetCable(object sender, RoutedEventArgs e)
         {
             try
             {
-                if (txtQuantity.Text != "" && CableSelectCB.SelectedValue != null)
+                if (txtQuantity.Text != "" && CableSelectCB.SelectedValue != null && PersonSelectCB != null)
                 {
-                    int num = Convert.ToInt32(CableSelectCB.SelectedValue.ToString());
-                    var cable = db.Cables.Where(w => w.CableId == num).FirstOrDefault();
+                    int cableId = Convert.ToInt32(CableSelectCB.SelectedValue.ToString());
+                    var cable = db.Cables.Where(w => w.CableId == cableId).FirstOrDefault();
                     cable.Stock -= Convert.ToInt32(txtQuantity.Text);
                     await db.SaveChangesAsync();
 
-                    
+                    //zapisanie logów
+                    int personId = Convert.ToInt32(PersonSelectCB.SelectedValue.ToString());
+                    int cableQty = Convert.ToInt32(txtQuantity.Text);
+                    await LogSaveAsync(cable.CableId, personId, cableQty, false);
+
                     if (cable.MinStock >= (cable.Stock + cable.OrderedQty - Convert.ToInt32(txtQuantity.Text)))
                     {
                         MessageBox.Show("Uwaga stan minimalny został przekroczony!!!");
@@ -80,7 +87,7 @@ namespace Magazyn
                 }
                 else
                 {
-                    MessageBox.Show("Wybierz ilość i rodzaj kabla");
+                    MessageBox.Show("Wybierz ilość, rodzaj kabla oraz osobę");
                 }
             }
             catch (Exception error)
@@ -94,15 +101,19 @@ namespace Magazyn
         {
             try
             {
-                if (txtQuantityDel.Text != "" && CableSelectDelCB.SelectedValue != null)
+                if (txtQuantityDel.Text != "" && CableSelectDelCB.SelectedValue != null && PersonSelectDelCB != null)
                 {
-                    int personId = Convert.ToInt32(PersonSelectDelCB.SelectedValue.ToString());
-                    int cableQty = Convert.ToInt32(txtQuantityDel.Text);
-                    int num = Convert.ToInt32(CableSelectDelCB.SelectedValue.ToString());
-                    var cable = db.Cables.Where(w => w.CableId == num).FirstOrDefault();
+                    int cableId = Convert.ToInt32(CableSelectDelCB.SelectedValue.ToString());
+                    var cable = db.Cables.Where(w => w.CableId == cableId).FirstOrDefault();
                     cable.Stock += Convert.ToInt32(txtQuantityDel.Text);
                     await db.SaveChangesAsync();
-                    await LogSave(cable.CableId, personId, cableQty, true);
+
+                    //zapisanie logów
+                    int personId = Convert.ToInt32(PersonSelectDelCB.SelectedValue.ToString());
+                    int cableQty = Convert.ToInt32(txtQuantityDel.Text);
+                    await LogSaveAsync(cable.CableId, personId, cableQty, true);
+
+
                     ClearNewCableData();
                     ClearOperationData();
                     ReloadData();
@@ -110,7 +121,7 @@ namespace Magazyn
                 }
                 else
                 {
-                    MessageBox.Show("Wybierz ilość i rodzaj kabla");
+                    MessageBox.Show("Wybierz ilość, rodzaj kabla oraz osobę");
                 }
             }
             catch (Exception error)
@@ -125,7 +136,7 @@ namespace Magazyn
             
             if (cablesDG.SelectedItem != null )
             {
-                Cable cable = (Cable)cablesDG.SelectedItem;
+                var cable = (Cable)cablesDG.SelectedItem;
                 CableSelectCB.SelectedItem = cable;
                 CableImageDisplay.Source = LoadImage(cable.Image);
             }
@@ -136,7 +147,7 @@ namespace Magazyn
             if (CableSelectCB.SelectedValue != null )
             {
                 var a = Convert.ToInt32(CableSelectCB.SelectedValue.ToString());
-                Cable cable = db.Cables.FirstOrDefault(x => x.CableId == a);
+                var cable = db.Cables.FirstOrDefault(x => x.CableId == a);
                 cablesDG.SelectedItem = cable;
             }
         }
@@ -147,7 +158,7 @@ namespace Magazyn
 
             if (cablesDelDG.SelectedItem != null)
             {
-                Cable cable = (Cable)cablesDelDG.SelectedItem;
+                var cable = (Cable)cablesDelDG.SelectedItem;
                 CableSelectDelCB.SelectedItem = cable;
                 CableImageDel.Source = LoadImage(cable.Image);
             }
@@ -158,7 +169,7 @@ namespace Magazyn
             if (CableSelectDelCB.SelectedValue != null)
             {
                 var a = Convert.ToInt32(CableSelectDelCB.SelectedValue.ToString());
-                Cable cable = db.Cables.FirstOrDefault(x => x.CableId == a);
+                var cable = db.Cables.FirstOrDefault(x => x.CableId == a);
                 cablesDelDG.SelectedItem = cable;
             }
         }
@@ -166,15 +177,16 @@ namespace Magazyn
         //przeładowanie wszystkich danych (odświeżanie po operacji)
         public void ReloadData()
         {
-            cablesDG.ItemsSource = db.Cables.ToList();
-            cablesDelDG.ItemsSource = db.Cables.ToList();
-            CableSelectCB.ItemsSource = db.Cables.ToList();
-            CableSelectDelCB.ItemsSource = db.Cables.ToList();
-            PersonSelectCB.ItemsSource = db.People.ToList();
-            PersonSelectDelCB.ItemsSource = db.People.ToList();
-            CableSelectEditCB.ItemsSource = db.Cables.ToList();
+            cablesDG.ItemsSource = db.Cables.OrderBy(x => x.CableName).ToList();
+            cablesDelDG.ItemsSource = db.Cables.OrderBy(x => x.CableName).ToList();
+            CableSelectCB.ItemsSource = db.Cables.OrderBy(x => x.CableName).ToList();
+            CableSelectDelCB.ItemsSource = db.Cables.OrderBy(x => x.CableName).ToList();
+            PersonSelectCB.ItemsSource = db.People.OrderBy(x => x.Name).ToList();
+            PersonSelectDelCB.ItemsSource = db.People.OrderBy(x => x.Name).ToList();
+            CableSelectEditCB.ItemsSource = db.Cables.OrderBy(x => x.CableName).ToList();
             ClearNewCableData();
             SetData();
+            LogDisplay();
         }
 
         //konwersja BitmapImage na tablicę byte[], do zapisu w bd
@@ -273,7 +285,8 @@ namespace Magazyn
             }
         }
 
-        private async Task LogSave(int cableId, int personId, int quantity, bool delivery)
+        //zapisanie operacji do tabeli Logs
+        private async Task LogSaveAsync(int cableId, int personId, int quantity, bool delivery)
         {
             try
             {
@@ -292,6 +305,33 @@ namespace Magazyn
             catch(Exception e)
             {
                 MessageBox.Show(e.Message);
+            }
+        }
+
+        //wyświetlanie informacji o pobraniach i dostawach
+        private void LogDisplay()
+        {
+            var logs = from d in db.Logs
+                       select new
+                       {
+                           d.LogId,
+                           d.Person.Name,
+                           d.Cable.CableName,
+                           d.Delivery,
+                           d.Quantity,
+                           d.Date,
+                           d.Person.Department.DeptName
+                       };
+            if (chkDelivery.IsChecked ?? true)
+            {
+                LogsDG.ItemsSource = logs.OrderBy(x => x.Date).ToList();
+            }
+            else
+            {
+                LogsDG.ItemsSource = logs
+                    .Where(x => x.Delivery == false)
+                    .OrderBy(x => x.Date)
+                    .ToList();
             }
         }
 
@@ -351,9 +391,41 @@ namespace Magazyn
             minStockTextBox.Text = "0";
             stockTextBox.Text = "0";
         }
+   
+        private void CheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            LogDisplay();
+        }
+        private void CheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            LogDisplay();
+        }
+
+        //tworzenie raportu w pliku excel
+        private void ExportToExcel()
+        {
+            try
+            {
+                LogsDG.SelectAllCells();
+                LogsDG.ClipboardCopyMode = DataGridClipboardCopyMode.IncludeHeader;
+                ApplicationCommands.Copy.Execute(null, LogsDG);
+                var resultat = (string)Clipboard.GetData(DataFormats.CommaSeparatedValue);
+                var result = (string)Clipboard.GetData(DataFormats.Text);
+                LogsDG.UnselectAllCells();
+                StreamWriter file1 = new StreamWriter(@"C:\Report\report " + DateTime.Now.ToShortDateString() + ".xls");
+                file1.WriteLine(result.Replace(',', ' '));
+                file1.Close();
+
+                MessageBox.Show("Zapisano do pliku");
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message);
+            }
+        }
 
         //walidacja pól
-        
+
         private void StockTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             Regex regex = new Regex("[^0-9]+");
@@ -368,38 +440,55 @@ namespace Magazyn
 
         private void CableOrdered_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
-            Regex regex = new Regex("[^0-9]+");
+            Regex regex = new Regex("[^0-9.]+");
             e.Handled = regex.IsMatch(e.Text);
         }
 
         private void CablePrice_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
+            Regex regex = new Regex(@"^\d*\.?\d?$");
+            e.Handled = !regex.IsMatch(e.Text);
+        }
+
+        private void TxtQuantity_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
             Regex regex = new Regex("[^0-9]+");
             e.Handled = regex.IsMatch(e.Text);
+        }
+
+        private void TxtQuantityDel_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            Regex regex = new Regex("[^0-9]+");
+            e.Handled = regex.IsMatch(e.Text);
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            ExportToExcel();
         }
 
         //koniec walicacji
 
 
-            /*
-        //usówanie materiału
-        private async void Delete(int cableId) {
-            try
-            {
-                var cable = db.Cables.Where(w => w.CableId == cableId).FirstOrDefault();
-                db.Cables.Remove(cable);
-                await db.SaveChangesAsync();
-                ReloadData();
+        /*
+    //usówanie materiału
+    private async void Delete(int cableId) {
+        try
+        {
+            var cable = db.Cables.Where(w => w.CableId == cableId).First();
+            db.Cables.Remove(cable);
+            await db.SaveChangesAsync();
+            ReloadData();
 
-                MessageBox.Show("Usunięto prawidłowo");
-            }
-            catch(Exception e)
-            {
-                MessageBox.Show(e.Message);
-            }
+            MessageBox.Show("Usunięto prawidłowo");
         }
+        catch(Exception e)
+        {
+            MessageBox.Show(e.Message);
+        }
+    }
 
-            */
+        */
 
     }
 }
