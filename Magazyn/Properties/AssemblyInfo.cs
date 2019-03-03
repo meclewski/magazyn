@@ -8,11 +8,11 @@ using System.Windows;
 // zestaw atrybutów. Zmień wartości tych atrybutów, aby zmodyfikować informacje
 // powiązane z zestawem.
 [assembly: AssemblyTitle("Magazyn")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Aplikacja do kontroli stanów magazynowych")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Microsoft")]
+[assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Magazyn")]
-[assembly: AssemblyCopyright("Copyright © Microsoft 2019")]
+[assembly: AssemblyCopyright("Copyright © Łukasz M.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

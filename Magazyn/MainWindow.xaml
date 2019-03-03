@@ -196,7 +196,7 @@
         </TabItem>
         <TabItem Header="Logi">
             <Grid Background="#FFE5E5E5" DataContext="{StaticResource logViewSource}">
-                <DataGrid Name="LogsDG" IsReadOnly="True" AutoGenerateColumns="False" Margin="10,90,0,44" HorizontalAlignment="Left" Width="830"  >
+                <DataGrid Name="LogsDG" IsReadOnly="True" AutoGenerateColumns="False" Margin="10,90,200,44"  >
                     <DataGrid.Columns>
                         <DataGridTextColumn Binding="{Binding LogId}" Header="ID" Width="*"/>
                         <DataGridTextColumn Binding="{Binding CableName}" Header="Nazwa" Width="12*"/>
@@ -204,11 +204,11 @@
                         <DataGridTextColumn Binding="{Binding DeptName}" Header="Dział" Width="2*" />
                         <DataGridTextColumn Binding="{Binding Quantity}" Header="Ilość" Width="2*" />
                         <DataGridTextColumn Binding="{Binding Date}" Header="Data" Width="4*" />
-                        
+
                     </DataGrid.Columns>
                 </DataGrid>
-                <CheckBox Name="chkDelivery" Content="Dostawy" HorizontalAlignment="Left" Margin="898,95,0,0" VerticalAlignment="Top" Checked="CheckBox_Checked" Unchecked="CheckBox_Unchecked" />
-                <Button Content="Zapisz do Excel" HorizontalAlignment="Left" Margin="898,526,0,0" VerticalAlignment="Top" Width="105" Click="Button_Click"/>
+                <CheckBox Name="chkDelivery" Content="Dostawy" Margin="0,95,80,0" VerticalAlignment="Top" Checked="CheckBox_Checked" Unchecked="CheckBox_Unchecked" HorizontalAlignment="Right" Width="62" />
+                <Button Content="Zapisz do Excel" Margin="0,0,37,44" VerticalAlignment="Bottom" Click="Button_Click" HorizontalAlignment="Right" Width="105"/>
             </Grid>
         </TabItem>
     </TabControl>

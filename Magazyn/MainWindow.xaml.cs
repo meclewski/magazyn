@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Entity;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -35,11 +36,11 @@ namespace Magazyn
             
         }
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
+        private async void Window_Loaded(object sender, RoutedEventArgs e)
         {
             db = new dbWarehouseEntities();
 
-            ReloadData();
+            await ReloadDataAsync();
             
             CollectionViewSource cableViewSource = (CollectionViewSource)FindResource("cableViewSource");
             // Załaduj dane poprzez ustawienie właściwości CollectionViewSource.Source:
@@ -83,7 +84,7 @@ namespace Magazyn
                     }
                     ClearNewCableData();
                     ClearOperationData();
-                    ReloadData();
+                    await ReloadDataAsync();
                 }
                 else
                 {
@@ -113,10 +114,9 @@ namespace Magazyn
                     int cableQty = Convert.ToInt32(txtQuantityDel.Text);
                     await LogSaveAsync(cable.CableId, personId, cableQty, true);
 
-
                     ClearNewCableData();
                     ClearOperationData();
-                    ReloadData();
+                    await ReloadDataAsync();
                     MessageBox.Show("Dostawa dopisana prawidłowo");
                 }
                 else
@@ -133,7 +133,6 @@ namespace Magazyn
         //połączenie wartości CB i DG z widoku pobrań
         private void CablesDG_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            
             if (cablesDG.SelectedItem != null )
             {
                 var cable = (Cable)cablesDG.SelectedItem;
@@ -155,7 +154,6 @@ namespace Magazyn
         //połączenie wartości CB i DG z widoku dostaw
         private void CablesDelDG_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-
             if (cablesDelDG.SelectedItem != null)
             {
                 var cable = (Cable)cablesDelDG.SelectedItem;
@@ -175,22 +173,22 @@ namespace Magazyn
         }
 
         //przeładowanie wszystkich danych (odświeżanie po operacji)
-        public void ReloadData()
+        private async Task ReloadDataAsync()
         {
-            cablesDG.ItemsSource = db.Cables.OrderBy(x => x.CableName).ToList();
-            cablesDelDG.ItemsSource = db.Cables.OrderBy(x => x.CableName).ToList();
-            CableSelectCB.ItemsSource = db.Cables.OrderBy(x => x.CableName).ToList();
-            CableSelectDelCB.ItemsSource = db.Cables.OrderBy(x => x.CableName).ToList();
-            PersonSelectCB.ItemsSource = db.People.OrderBy(x => x.Name).ToList();
-            PersonSelectDelCB.ItemsSource = db.People.OrderBy(x => x.Name).ToList();
-            CableSelectEditCB.ItemsSource = db.Cables.OrderBy(x => x.CableName).ToList();
+            cablesDG.ItemsSource = await db.Cables.OrderBy(x => x.CableName).ToListAsync();
+            cablesDelDG.ItemsSource = await db.Cables.OrderBy(x => x.CableName).ToListAsync();
+            CableSelectCB.ItemsSource = await db.Cables.OrderBy(x => x.CableName).ToListAsync();
+            CableSelectDelCB.ItemsSource = await db.Cables.OrderBy(x => x.CableName).ToListAsync();
+            PersonSelectCB.ItemsSource = await db.People.OrderBy(x => x.Name).ToListAsync();
+            PersonSelectDelCB.ItemsSource = await db.People.OrderBy(x => x.Name).ToListAsync();
+            CableSelectEditCB.ItemsSource = await db.Cables.OrderBy(x => x.CableName).ToListAsync();
             ClearNewCableData();
             SetData();
-            LogDisplay();
+            LogDisplayAsync();
         }
 
         //konwersja BitmapImage na tablicę byte[], do zapisu w bd
-        public byte[] GetJPGFromImageControl(BitmapImage imageC)
+        private byte[] GetJPGFromImageControl(BitmapImage imageC)
         {
             MemoryStream memStream = new MemoryStream();
             JpegBitmapEncoder encoder = new JpegBitmapEncoder();
@@ -199,7 +197,7 @@ namespace Magazyn
             return memStream.ToArray();
         }
 
-        //wyświetlanie zdjęcia (konwersja na BitmapImage
+        //wyświetlanie zdjęcia (konwersja na BitmapImage)
         private static BitmapImage LoadImage(byte[] imageData)
         {
             if (imageData == null || imageData.Length == 0) return null;
@@ -221,7 +219,6 @@ namespace Magazyn
         //wybieranie zdjęcia materiału z pliku
         private void Button_Click_OpenImage(object sender, RoutedEventArgs e)
         {
-            
             OpenFileDialog openDlg = new OpenFileDialog
             {
                 Filter = "JPEG | *.jpg",
@@ -247,7 +244,7 @@ namespace Magazyn
                 {
                     int num = Convert.ToInt32(CableSelectEditCB.SelectedValue.ToString());
                     var cable = db.Cables.Where(w => w.CableId == num).FirstOrDefault();
-                    cable.Image = GetJPGFromImageControl(CableImageNew.Source as BitmapImage);
+                    cable.Image = GetJPGFromImageControl((BitmapImage)CableImageNew.Source);
                     cable.CableName = cableNameTextBox.Text;
                     cable.CablePN = cablePNTextBox.Text;
                     cable.Stock = Convert.ToInt32(stockTextBox.Text);
@@ -261,7 +258,7 @@ namespace Magazyn
                 {
                     Cable cable = new Cable
                     {
-                        Image = GetJPGFromImageControl(CableImageNew.Source as BitmapImage),
+                        Image = GetJPGFromImageControl((BitmapImage)CableImageNew.Source),
                         CableName = cableNameTextBox.Text,
                         CablePN = cablePNTextBox.Text,
                         Stock = Convert.ToInt32(stockTextBox.Text),
@@ -274,7 +271,7 @@ namespace Magazyn
                     db.Cables.Add(cable);
                 }
                 await db.SaveChangesAsync();
-                ReloadData();
+                await ReloadDataAsync();
                
                 MessageBox.Show("Zapisano poprawnie");
             }
@@ -309,7 +306,7 @@ namespace Magazyn
         }
 
         //wyświetlanie informacji o pobraniach i dostawach
-        private void LogDisplay()
+        private async void LogDisplayAsync()
         {
             var logs = from d in db.Logs
                        select new
@@ -324,14 +321,14 @@ namespace Magazyn
                        };
             if (chkDelivery.IsChecked ?? true)
             {
-                LogsDG.ItemsSource = logs.OrderBy(x => x.Date).ToList();
+                LogsDG.ItemsSource = await logs.OrderBy(x => x.Date).ToListAsync();
             }
             else
             {
-                LogsDG.ItemsSource = logs
+                LogsDG.ItemsSource = await logs
                     .Where(x => x.Delivery == false)
                     .OrderBy(x => x.Date)
-                    .ToList();
+                    .ToListAsync();
             }
         }
 
@@ -394,11 +391,11 @@ namespace Magazyn
    
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
         {
-            LogDisplay();
+            LogDisplayAsync();
         }
         private void CheckBox_Unchecked(object sender, RoutedEventArgs e)
         {
-            LogDisplay();
+            LogDisplayAsync();
         }
 
         //tworzenie raportu w pliku excel
@@ -413,7 +410,7 @@ namespace Magazyn
                 var result = (string)Clipboard.GetData(DataFormats.Text);
                 LogsDG.UnselectAllCells();
                 StreamWriter file1 = new StreamWriter(@"C:\Report\report " + DateTime.Now.ToShortDateString() + ".xls");
-                file1.WriteLine(result.Replace(',', ' '));
+                file1.WriteLineAsync(result.Replace(',', ' '));
                 file1.Close();
 
                 MessageBox.Show("Zapisano do pliku");
@@ -471,23 +468,22 @@ namespace Magazyn
 
 
         /*
-    //usówanie materiału
-    private async void Delete(int cableId) {
-        try
-        {
-            var cable = db.Cables.Where(w => w.CableId == cableId).First();
-            db.Cables.Remove(cable);
-            await db.SaveChangesAsync();
-            ReloadData();
+        //usówanie materiału
+        private async void Delete(int cableId) {
+            try
+            {
+                var cable = db.Cables.Where(w => w.CableId == cableId).First();
+                db.Cables.Remove(cable);
+                await db.SaveChangesAsync();
+                ReloadData();
 
-            MessageBox.Show("Usunięto prawidłowo");
+                MessageBox.Show("Usunięto prawidłowo");
+            }
+            catch(Exception e)
+            {
+                MessageBox.Show(e.Message);
+            }
         }
-        catch(Exception e)
-        {
-            MessageBox.Show(e.Message);
-        }
-    }
-
         */
 
     }
